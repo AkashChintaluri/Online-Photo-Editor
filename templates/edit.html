@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Arda Altınörs">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <title>Online Photo Editor</title>
+    <link rel="stylesheet" href="static/main.css">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+</head>
+<body>
+
+<div class="container">
+    <h1>Online Photo Editor</h1>
+    <p class="alert-box">Fill the inputs to edit your image.<br>When you're ready, click to the save button 👍</p>
+    
+    <center>
+        <img alt="Image that has uploaded by user" src="/static/img/{{ initial_image }}" />
+        <p>Image Dimensions: {{ initial_width , initial_height }}</p>
+    </center>
+
+    <br><br><br>
+    
+    <form action="{{ url_for("edit_page") }}" method="post" autocomplete="off">
+    
+        <!-- Add text To the Image -->
+        <h3>Add Text to the Image</h3>
+        <hr>
+        <div class="cols-text">
+            <input class="input" type="text" name="text" id="text", placeholder="Image Text:">
+
+            <select id="text_color" name="text_color">
+                <option value="red">Red</option>
+                <option value="black">Black</option>
+                <option value="white">White</option>
+                <option value="pink">Pink</option>
+            </select>
+    
+            <input class="input" type="text" name="text_size" id="text_size", placeholder="Text Size:">
+      
+            <span class="align-center">
+                Margin from Left:<br>
+                0<input class="slider" type="range" id="text_x" name="text_x" min="0" max="100" value="10">100
+            </span>
+           
+            <span class="align-center">
+                Margin from Top:<br>
+                0<input class="slider" type="range" id="text_y" name="text_y" min="0" max="100" value="10">100
+            </span>
+        </div>
+    
+        <!-- End of add text -->
+    
+        <!-- Adjust properties / enhancements -->
+        <h3>Adjust Image Properties</h3>
+        <hr>
+        
+        <div class="cols-properties">
+            <span class="align-center">
+                Modify Contrast:<br>
+                0.1<input class="slider" type="range" id="contrast_value" name="contrast_value" min="0.1" max="10" value="1", step="0.1">10
+            </span>
+            
+            <span class="align-center">
+                Modify Color:<br>
+                0.1<input class="slider" type="range" id="color_value" name="color_value" min="0.1" max="10" value="1" step="0.1">10
+            </span>
+            
+            <span class="align-center">
+                Modify Sharpness: <br>
+                1<input class="slider" type="range" id="sharpness_value" name="sharpness_value" min="1" max="10" value="1" step="0.1">10
+            </span>
+        </div>
+        <!-- End of properties / enhancements -->
+    
+        <!-- Add image inside of the image -->
+        <h3>Add another image on your image</h3>
+        <hr>
+
+        <div class="cols-add-img">
+            <input type="text" name="new_image_url" id="new_image_url", placeholder="New Image URL">
+            <span class="align-center">
+                Shrink Percentage:<br>
+                0<input class="slider" type="range" id="shrink_percentage" name="shrink_percentage" min="0" max="100" value="95">100
+            </span>
+            <span class="align-center">
+                Rotate New Image:<br>
+                -180<input class="slider" type="range" id="user_degree" name="user_degree" min="-180" max="180" value="0">+180
+            </span>
+            <span class="align-center">
+                Margin from Left:<br>
+                0<input class="slider" type="range" id="new_image_x" name="new_image_x" min="0" max="100" value="50">100
+            </span>
+            <span class="align-center">
+                Margin from Top:<br>
+                0<input class="slider" type="range" id="new_image_y" name="new_image_y" min="0" max="100" value="50">100
+            </span>  
+        </div>
+        <!-- End of add image -->
+
+        <!-- Add Gradient To the Image -->
+        <div class="cols-2">
+            <div class="gradient">
+                <h3>Add Gradient</h3>
+                <hr>
+                <div class="cols-gradient">
+                    <select class="select-gradient" id="gradient_color" name="gradient_color">
+                        <option value="none">None</option>
+                        <option value="black">Black</option>
+                        <option value="red">Red</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="orange">Orange</option>
+                    </select>
+                   
+                    <span class="align-center">
+                        Gradient Magnitude:<br>
+                        More<input class="slider" type="range" id="gradient_magnitude" name="gradient_magnitude" min="0.1" max="5" value="1", step="0.1">Less
+                    </span>
+                </div>
+            </div>
+
+            <div class="filter">
+                <h3 style="text-align:right;">Add Filter</h3>
+                <hr>
+                <div class="cols-gradient">
+                    <select class="select-gradient" id="user_filter" name="user_filter">
+                        <option value="none">No Filter</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="blur">Blur</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+        <!-- End of add Gradient -->
+
+        <!-- Rotation and cropping section -->
+        <div class="cols-2">
+            <div class="rotation">
+                <h3>Rotate Image</h3>
+                <hr>
+                <div class="wrapper">
+                    <input type="radio" name="main_user_degree" id="option-1" checked value="0">
+                    <input type="radio" name="main_user_degree" id="option-2" value="90">
+                    <input type="radio" name="main_user_degree" id="option-3" value="180">
+                    <input type="radio" name="main_user_degree" id="option-4" value="270">
+                        <label for="option-1" class="option option-1">
+                        <div class="dot"></div>
+                            <span>0°</span>
+                        </label>
+                        <label for="option-2" class="option option-2">
+                        <div class="dot"></div>
+                            <span>90°</span>
+                        </label>
+                        <label for="option-3" class="option option-3">
+                        <div class="dot"></div>
+                            <span>180°</span>
+                        </label>
+                        <label for="option-4" class="option option-4">
+                        <div class="dot"></div>
+                            <span>270°</span>
+                        </label>
+                </div>
+
+            </div>
+
+            <div class="cropping">
+                <h3 style="text-align: right;">Crop Image <a target="_blank" href="/static/img/cropping.png"><span class="qm"> ?</span></a></h3>
+                <hr>
+                <div class="check-crop-image">
+                    <div class="wrapper">
+                        <input type="checkbox" name="opt-crop" id="opt-crop" value="crop">
+                        <label for="opt-crop" class="option opt-crop">
+                                <span>Crop Image</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="crop-values">
+                    <span class="align-center">
+                        Left:<br>
+                        0<input class="slider" type="range" id="crop_left" name="crop_left" min="0" max="100" value="10">100
+                    </span>
+                    <span class="align-center">
+                        Top:<br>
+                        0<input class="slider" type="range" id="crop_top" name="crop_top" min="0" max="100" value="10">100
+                    </span>
+                    <span class="align-center">
+                       Right:<br>
+                        0<input class="slider" type="range" id="crop_right" name="crop_right" min="0" max="100" value="90">100
+                    </span>
+                    <span class="align-center">
+                        Bottom:<br>
+                        0<input class="slider" type="range" id="crop_bottom" name="crop_bottom" min="0" max="100" value="90">100
+                    </span> 
+                </div>
+
+            </div>
+        </div>
+        <!-- End of Rotation and cropping -->
+
+    <!-- Buttons to save and reset -->
+        <div class="edit-buttons">
+            <button type="submit">Save & Show Image</button>
+            <a class="btn btn-red"href={{url_for('home_page')}}>Edit New Image</a>
+        </div>
+        </center>
+    </form>
+    
+    {% if result==True %}
+    <center>
+        <img alt="Edited Image" src="/static/img/{{ final_image }}" />
+    </center>
+    {% endif %}
+
+</div>
+
+<footer>
+        <p>&copy Developed by <a target="_blank" href="https://altinors.com/">Arda Altınörs</a> </p>
+</footer>
+
+</body>
+</html>
