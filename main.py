@@ -184,7 +184,7 @@ class ProcessImage:
         self.text_size = text_size
         self.text_color = text_color
         try:
-            font = ImageFont.truetype("arial.ttf", size=text_size)
+            font = ImageFont.truetype("static/arial.ttf", size=text_size)
         except:
             font = ImageFont.load_default()
         draw = ImageDraw.Draw(self.image)
@@ -286,5 +286,4 @@ app.add_url_rule("/", view_func=HomePage.as_view("home_page"))
 app.add_url_rule("/edit", view_func=EditPage.as_view("edit_page"))
 
 if __name__ == "__main__":
-    app.run(port=8080)
-    #app.run(host='0.0.0.0', port=8080)""" #replit
+    app.run(host='0.0.0.0', port=8080)
