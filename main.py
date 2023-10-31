@@ -1,27 +1,31 @@
-### Online Photo Editor ###
-# Author: Arda Altınörs, Yeditepe University
-# Contact: arda@altinors.com | arda.altinors@std.yeditepe.edu.tr
-# Social: https://github.com/ardaaltinors
-# Description: This project lets the user edit photos by web based GUI.
-# User Guide: Paste image URLs in the input boxes and use buttons to edit the image.
-
 import os
 import time
-
-try:
-    from flask.views import MethodView
-    from flask import Flask, render_template, request
-    from PIL import Image, ImageTk, ImageFilter, ImageEnhance, ImageOps, ImageFont, ImageDraw
-    import requests
-except:
-    print("There are missing packages!")
-    os.system("pip3 install -r requirements.txt")
-    from flask.views import MethodView
-    from flask import Flask, render_template, request
-    from PIL import Image, ImageTk, ImageFilter, ImageEnhance, ImageOps, ImageFont, ImageDraw
-    import requests
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask.views import MethodView
+from flask import Flask, render_template, request, flash, redirect, url_for, send_file
+from PIL import Image, ImageFilter, ImageEnhance, ImageFont, ImageDraw
+import requests
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+# Upload configurations
+UPLOAD_FOLDER = 'static/img'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Database configurations
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///images.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class EditedImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120), nullable=False)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 headers = {
     'pragma': 'no-cache',
@@ -33,16 +37,14 @@ headers = {
     'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
 }
 
-
 class HomePage(MethodView):
-
     def get(self):
         return render_template("index.html")
 
     def post(self):
         path = request.form.get("path")
         global user_image
-        user_image = (ProcessImage(path))
+        user_image = ProcessImage(path)
         user_image.save()
         global user_image_path
         user_image_path = f"{current_time}.png"
@@ -77,7 +79,7 @@ class EditPage(MethodView):
             pass
         ####
 
-        # Receive gradient valuse.
+        # Receive gradient values.
         insert_gradient = False
         gradient_color = str(request.form.get("gradient_color"))
         if gradient_color != "none":
@@ -193,10 +195,10 @@ class ProcessImage:
     def add_gradient(self, gradient_magnitude=1, color="black"):
         self.gradient_magnitude = gradient_magnitude
         self.color = color
-        if color=="none":
+        if color == "none":
             pass
         else:
-            colors = {"black":0,"red":1500,"yellow":100000,"orange":150000}
+            colors = {"black": 0, "red": 1500, "yellow": 100000, "orange": 150000}
             color = colors[color]
             im = self.image
             if im.mode != 'RGBA':
@@ -204,7 +206,8 @@ class ProcessImage:
             width, height = im.size
             gradient = Image.new('L', (width, 1), color=0xFF)
             for x in range(width):
-                gradient.putpixel((x, 0), int(255 * (1 - gradient_magnitude * float(x) / width)))
+                gradient.putpixel((x, 0), int(255 * (1 - gradient_magnitude * float(x) / width))
+                                  )
             alpha = gradient.resize(im.size)
             black_im = Image.new('RGBA', (width, height), color=color)
             black_im.putalpha(alpha)
@@ -223,7 +226,7 @@ class ProcessImage:
         except:
             new_image = Image.open("static/404.jpg")
         if user_degree != 0:
-            new_image = new_image.rotate(-1*user_degree, expand=1)
+            new_image = new_image.rotate(-1 * user_degree, expand=1)
         new_image.thumbnail((new_image.width * shrink_perc, new_image.width * shrink_perc))
         position = (x, y)
         try:
@@ -256,7 +259,7 @@ class ProcessImage:
 
     def rotate_image(self, degree):
         self.degree = degree
-        rotated_img = self.image.rotate(-1*degree, expand=1)
+        rotated_img = self.image.rotate(-1 * degree, expand=1)
         self.image = rotated_img
 
     def crop_image(self, left, top, right, bottom):
@@ -282,8 +285,54 @@ class ProcessImage:
         os.chdir("..")
 
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file and allowed_file(file.filename):
+        photo = Photo(image_data=file.read())
+        db.session.add(photo)
+        db.session.commit()
+
+        global user_image
+        user_image = ProcessImage(file)
+        user_image.save()
+
+        global user_image_path
+        user_image_path = f"{current_time}.png"
+
+        global initial_image_width
+        initial_image_width = user_image.width
+
+        global initial_image_height
+        initial_image_height = user_image.height
+
+        return render_template("edit.html", initial_image=user_image_path, initial_width=initial_image_width, initial_height=initial_image_height)
+
+
+@app.route('/download', methods=['GET'])
+def download_file():
+    global current_time  # Make sure 'current_time' is accessible here.
+    file_path = os.path.join('static/img', f"{current_time}.png")
+
+    # Check if the edited image file exists
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True, download_name=f"{current_time}.png")
+    else:
+        flash('The edited image file does not exist.')
+        return redirect(url_for('edit_page'))
+
+
 app.add_url_rule("/", view_func=HomePage.as_view("home_page"))
 app.add_url_rule("/edit", view_func=EditPage.as_view("edit_page"))
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(host='0.0.0.0', port=8080)
+

@@ -14,7 +14,7 @@
 
 <div class="container">
     <h1>Online Photo Editor</h1>
-    <p class="alert-box">Fill the inputs to edit your image.<br>When you're ready, click to the save button 👍</p>
+    <p class="alert-box">Fill the inputs to edit your image.<br>When you're ready, click the save button 👍</p>
     
     <center>
         <img alt="Image that has uploaded by user" src="/static/img/{{ initial_image }}" />
@@ -60,7 +60,7 @@
         <div class="cols-properties">
             <span class="align-center">
                 Modify Contrast:<br>
-                0.1<input class="slider" type="range" id="contrast_value" name="contrast_value" min="0.1" max="10" value="1", step="0.1">10
+                0.1<input class="slider" type="range" id="contrast_value" name="contrast_value" min="0.1" max="10" value="1" step="0.1">10
             </span>
             
             <span class="align-center">
@@ -116,7 +116,7 @@
                    
                     <span class="align-center">
                         Gradient Magnitude:<br>
-                        More<input class="slider" type="range" id="gradient_magnitude" name="gradient_magnitude" min="0.1" max="5" value="1", step="0.1">Less
+                        More<input class="slider" type="range" id="gradient_magnitude" name="gradient_magnitude" min="0.1" max="5" value="1" step="0.1">Less
                     </span>
                 </div>
             </div>
@@ -145,25 +145,24 @@
                     <input type="radio" name="main_user_degree" id="option-1" checked value="0">
                     <input type="radio" name="main_user_degree" id="option-2" value="90">
                     <input type="radio" name="main_user_degree" id="option-3" value="180">
-                    <input type="radio" name="main_user_degree" id="option-4" value="270">
-                        <label for="option-1" class="option option-1">
+                    <input type= "radio" name="main_user_degree" id="option-4" value="270">
+                    <label for="option-1" class="option option-1">
                         <div class="dot"></div>
                             <span>0°</span>
-                        </label>
-                        <label for="option-2" class="option option-2">
+                    </label>
+                    <label for="option-2" class="option option-2">
                         <div class="dot"></div>
                             <span>90°</span>
-                        </label>
-                        <label for="option-3" class="option option-3">
+                    </label>
+                    <label for="option-3" class="option option-3">
                         <div class="dot"></div>
                             <span>180°</span>
-                        </label>
-                        <label for="option-4" class="option option-4">
+                    </label>
+                    <label for="option-4" class="option option-4">
                         <div class="dot"></div>
                             <span>270°</span>
-                        </label>
+                    </label>
                 </div>
-
             </div>
 
             <div class="cropping">
@@ -173,7 +172,7 @@
                     <div class="wrapper">
                         <input type="checkbox" name="opt-crop" id="opt-crop" value="crop">
                         <label for="opt-crop" class="option opt-crop">
-                                <span>Crop Image</span>
+                            <span>Crop Image</span>
                         </label>
                     </div>
                 </div>
@@ -188,7 +187,7 @@
                         0<input class="slider" type="range" id="crop_top" name="crop_top" min="0" max="100" value="10">100
                     </span>
                     <span class="align-center">
-                       Right:<br>
+                        Right:<br>
                         0<input class="slider" type="range" id="crop_right" name="crop_right" min="0" max="100" value="90">100
                     </span>
                     <span class="align-center">
@@ -196,30 +195,26 @@
                         0<input class="slider" type="range" id="crop_bottom" name="crop_bottom" min="0" max="100" value="90">100
                     </span> 
                 </div>
-
             </div>
         </div>
         <!-- End of Rotation and cropping -->
 
-    <!-- Buttons to save and reset -->
+        <!-- Buttons to save and reset -->
         <div class="edit-buttons">
             <button type="submit">Save & Show Image</button>
-            <a class="btn btn-red"href={{url_for('home_page')}}>Edit New Image</a>
+            <a class="btn btn-red" href={{url_for('home_page')}}>Edit New Image</a>
         </div>
-        </center>
     </form>
     
     {% if result==True %}
     <center>
         <img alt="Edited Image" src="/static/img/{{ final_image }}" />
+        <br>
+        <a class="btn btn-download" href="{{ url_for('download_file') }}" download>Download Edited Image</a>
     </center>
     {% endif %}
 
 </div>
-
-<footer>
-        <p>&copy Developed by <a target="_blank" href="https://altinors.com/">Arda Altınörs</a> </p>
-</footer>
-
 </body>
 </html>
+
